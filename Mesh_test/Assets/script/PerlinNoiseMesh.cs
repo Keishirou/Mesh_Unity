@@ -47,6 +47,8 @@ public class PerlinNoiseMesh : MonoBehaviour
             CreateMesh(per);
             timeElapsed = 0.0f;
         }
+        
+
 
     }
 
