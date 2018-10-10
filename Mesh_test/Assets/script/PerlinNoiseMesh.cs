@@ -36,19 +36,28 @@ public class PerlinNoiseMesh : MonoBehaviour
     {
         timeElapsed += Time.deltaTime;
 
-        if ((update)&&(timeElapsed >= timeOut))
-        {
-            PerlinNoiseProperty[] per = perlinNoiseProperty;
-            foreach (PerlinNoiseProperty p in per)
-            {
-                p.offset.x = Random.Range(RadomRange.x, RadomRange.y); //test* 10;
-                p.offset.y = Random.Range(RadomRange.x, RadomRange.y); //test * 10;
-            }
-            CreateMesh(per);
-            timeElapsed = 0.0f;
-        }
-        
+        //if ((update)&&(timeElapsed >= timeOut))
+        //{
+        //    PerlinNoiseProperty[] per = perlinNoiseProperty;
+        //    foreach (PerlinNoiseProperty p in per)
+        //    {
+        //        p.offset.x = Random.Range(RadomRange.x, RadomRange.y); //test* 10;
+        //        p.offset.y = Random.Range(RadomRange.x, RadomRange.y); //test * 10;
+        //    }
+        //    CreateMesh(per);
+        //    timeElapsed = 0.0f;
+        //}
 
+        PerlinNoiseProperty[] per = perlinNoiseProperty;
+        foreach (PerlinNoiseProperty p in per)
+        {
+            p.offset.x = timeElapsed*10;// Random.Range(RadomRange.x, RadomRange.y); //test* 10;
+            p.offset.y = timeElapsed*10;// Random.Range(RadomRange.x, RadomRange.y); //test * 10;
+        }
+        CreateMesh(per);
+
+        if(timeElapsed >= timeOut)
+            timeElapsed = 0.0f;
 
     }
 

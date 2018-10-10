@@ -126,7 +126,7 @@ GameObject:
   m_Icon: {fileID: 0}
   m_NavMeshLayer: 0
   m_StaticEditorFlags: 0
-  m_IsActive: 1
+  m_IsActive: 0
 --- !u!23 &527939550
 MeshRenderer:
   m_ObjectHideFlags: 0
@@ -544,7 +544,7 @@ Transform:
   m_Father: {fileID: 0}
   m_RootOrder: 1
   m_LocalEulerAnglesHint: {x: 50, y: -30, z: 0}
---- !u!43 &1913188945
+--- !u!43 &1876445188
 Mesh:
   m_ObjectHideFlags: 0
   m_PrefabParentObject: {fileID: 0}
@@ -808,7 +808,7 @@ GameObject:
   m_Icon: {fileID: 0}
   m_NavMeshLayer: 0
   m_StaticEditorFlags: 0
-  m_IsActive: 0
+  m_IsActive: 1
 --- !u!114 &2071698437
 MonoBehaviour:
   m_ObjectHideFlags: 0
@@ -876,7 +876,7 @@ MeshFilter:
   m_PrefabParentObject: {fileID: 0}
   m_PrefabInternal: {fileID: 0}
   m_GameObject: {fileID: 2071698436}
-  m_Mesh: {fileID: 1913188945}
+  m_Mesh: {fileID: 1876445188}
 --- !u!64 &2071698441
 MeshCollider:
   m_ObjectHideFlags: 0
@@ -890,7 +890,7 @@ MeshCollider:
   m_Convex: 0
   m_InflateMesh: 0
   m_SkinWidth: 0.01
-  m_Mesh: {fileID: 1913188945}
+  m_Mesh: {fileID: 1876445188}
 --- !u!114 &2071698442
 MonoBehaviour:
   m_ObjectHideFlags: 0
@@ -904,7 +904,7 @@ MonoBehaviour:
   m_EditorClassIdentifier: 
   update: 1
   RadomRange: {x: 0, y: 10}
-  timeOut: 1
+  timeOut: 10
   meshColorGradient:
     serializedVersion: 2
     key0: {r: 0, g: 0.2965517, b: 1, a: 1}
