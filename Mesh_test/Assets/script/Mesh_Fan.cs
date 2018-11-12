@@ -11,9 +11,11 @@ public class Mesh_Fan : MonoBehaviour
 
     public PhysicMaterial physicMaterial;
 
-    public float r_in = 1.0f;
+    public float r_in = 3.0f;
     public float r_out = 5.0f;
     public int div_num = 30; //3の倍数にする
+
+    public int Central_angle = 360;
 
     // Use this for initialization
     void Start()
@@ -21,8 +23,8 @@ public class Mesh_Fan : MonoBehaviour
         int i = 0;
         mesh = new Mesh();
         Vector3[] newVertices = new Vector3[div_num * 2];
-        Vector3[] outCircle = new Vector3[div_num];
-        Vector3[] inCircle = new Vector3[div_num];
+        //Vector3[] outCircle = new Vector3[div_num];
+        //Vector3[] inCircle = new Vector3[div_num];
         Vector2[] newUV = new Vector2[div_num * 2];
         int[] newTriangles = new int[div_num * 3 * 2];
 
@@ -37,8 +39,8 @@ public class Mesh_Fan : MonoBehaviour
             }
             else
             {
-                newVertices[i].x = r_out * Mathf.Cos(2.0f * Mathf.PI * ((float)i + 0.5f) / (float)div_num);
-                newVertices[i].y = r_out * Mathf.Sin(2.0f * Mathf.PI * ((float)i + 0.5f) / (float)div_num);
+                newVertices[i].x = r_in * Mathf.Cos(2.0f * Mathf.PI * ((float)i + 0.5f) / (float)div_num);
+                newVertices[i].y = r_in * Mathf.Sin(2.0f * Mathf.PI * ((float)i + 0.5f) / (float)div_num);
                 newVertices[i].z = 0.0f;
             }
             
@@ -74,12 +76,22 @@ public class Mesh_Fan : MonoBehaviour
         //newTriangles[4] = 1;
         //newTriangles[5] = 2;
 
-        for (i = 0; i < newVertices.GetLength(0) - 2; i++)
+        for (i = 0; i < div_num*2- 2; i++)
         {
             // 三角形ごとの頂点インデックスを指定.
-            newTriangles[3 * i] = 0;
-            newTriangles[3 * i + 1] = i + 1;
-            newTriangles[3 * i + 2] = i + 2;
+            if (i % 2 == 0)
+            {
+                newTriangles[3 * i] = i/2;
+                newTriangles[3 * i + 1] = i/2 + 1;
+                newTriangles[3 * i + 2] = i/2 + div_num;
+            }
+            else
+            {
+                newTriangles[3 * i] = i/2 + div_num + 1;
+                newTriangles[3 * i + 1] = i/2 + div_num;
+                newTriangles[3 * i + 2] = i/2 + 1;
+
+            }
 
             //newTriangles[i] = i;
             /*
@@ -100,11 +112,17 @@ public class Mesh_Fan : MonoBehaviour
 
         //Debug.Log("i=" + i + ": max=" + newTriangles.GetLength(0));
 
-        //最後の三角形の頂点インデックスを指定.
+        //最後2つの三角形の頂点インデックスを指定.
         newTriangles[3 * i] = 0;
-        newTriangles[3 * i + 1] = i + 1;
-        newTriangles[3 * i + 2] = 1;
+        newTriangles[3 * i + 1] = div_num;
+        newTriangles[3 * i + 2] = 2 * div_num - 1;
 
+        i++;
+
+        newTriangles[3 * i] = 0;
+        newTriangles[3 * i + 1] = div_num*2-1;
+        newTriangles[3 * i + 2] = div_num - 1;
+        
         mesh.vertices = newVertices;
         mesh.uv = newUV;
         mesh.triangles = newTriangles;
