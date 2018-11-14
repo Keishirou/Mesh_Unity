@@ -2,47 +2,57 @@
 using System.Collections.Generic;
 using UnityEngine;
 
+//[RequireComponent(typeof(MeshRenderer))]
+//[RequireComponent(typeof(MeshFilter))]
+
 public class Mesh_Fan : MonoBehaviour
 {
-
     private Mesh mesh;
     [SerializeField]
     private Material _mat;
 
     public PhysicMaterial physicMaterial;
 
-    public float r_in = 3.0f;
-    public float r_out = 5.0f;
+    public float r_in = 3.0f; //内側の円の半径
+    public float r_out = 5.0f; //外側の円の半径
     public int div_num = 30; //3の倍数にする
 
-    public int central_angle = 360;
+    public int central_angle = 360; //中心角
 
     // Use this for initialization
     void Start()
     {
-       
+        //扇型Meshの描画
+        CreateMesh(r_in, r_out, div_num, central_angle);
     }
 
     // Update is called once per frame
     void Update()
     {
-        float R_in = r_in;
-        float R_out = r_out;
-        int Div_num = div_num;
-        int Central_angle = central_angle;
-        CreateMesh(R_in,R_out,Div_num,Central_angle);
+        float R_in = 0.0f; //内側の円の半径
+        float R_out = 0.0f; //外側の円の半径
+        int Div_num = 0; //3の倍数にする
+        int Central_angle = 0; //中心角
+
+        //前のフレームで描画した値と異なる場合再描画
+        if ((R_in != r_in)||(R_out != r_out)||(Div_num != div_num)||(Central_angle != central_angle))
+        {
+            R_in = r_in; //内側の円の半径
+            R_out = r_out; //外側の円の半径
+            Div_num = div_num; //3の倍数にする
+            Central_angle = central_angle; //中心角
+            CreateMesh(R_in, R_out, Div_num, Central_angle);//扇型Meshの描画
+        }
+
     }
 
     void CreateMesh(float r_in, float r_out, int div_num, int central_angle)
     {
-        int i = 0;
         mesh = new Mesh();
         Vector3[] newVertices = new Vector3[div_num * 2];
-        //Vector3[] outCircle = new Vector3[div_num];
-        //Vector3[] inCircle = new Vector3[div_num];
         Vector2[] newUV = new Vector2[div_num * 2];
-        int[] newTriangles = new int[div_num * 3 * 2];
 
+        int i = 0;
         int temp_angle = 0;
 
         for (i = 0; i < 2 * div_num; i++)
@@ -53,15 +63,18 @@ public class Mesh_Fan : MonoBehaviour
                 newVertices[i].x = r_out * Mathf.Cos(2.0f * Mathf.PI * (float)i / (float)div_num);
                 newVertices[i].y = r_out * Mathf.Sin(2.0f * Mathf.PI * (float)i / (float)div_num);
                 newVertices[i].z = 0.0f;
+                newVertices[i] = newVertices[i] + this.transform.localPosition;
             }
             else
             {
                 newVertices[i].x = r_in * Mathf.Cos(2.0f * Mathf.PI * ((float)i + 0.5f) / (float)div_num);
                 newVertices[i].y = r_in * Mathf.Sin(2.0f * Mathf.PI * ((float)i + 0.5f) / (float)div_num);
                 newVertices[i].z = 0.0f;
+                newVertices[i] = newVertices[i] + this.transform.localPosition;
             }
 
-            if(central_angle > (180.0f * (float)i / (float)div_num))
+            //円をどこで切るのかを決定
+            if (central_angle > (180.0f * (float)i / (float)div_num))
             {
                 temp_angle = i;
             }
@@ -83,52 +96,10 @@ public class Mesh_Fan : MonoBehaviour
 
         }
 
-
-        // UVの指定 (頂点数と同じ数を指定すること).
-        //newUV[0] = new Vector2(0.0f, 0.0f);
-        //newUV[1] = new Vector2(0.0f, 1.0f);
-        //newUV[2] = new Vector2(1.0f, 1.0f);
-        //newUV[3] = new Vector2(1.0f, 0.0f);
-
-        // 三角形ごとの頂点インデックスを指定.
-        //newTriangles[0] = 2;
-        //newTriangles[1] = 1;
-        //newTriangles[2] = 0;
-        //newTriangles[3] = 0;
-        //newTriangles[4] = 1;
-        //newTriangles[5] = 2;
-
-        int[] subTriangles = new int[temp_angle*3+3];
+        //　決めた範囲のみ描画する
+        int[] newTriangles = new int[temp_angle*3+3];
 
         for(i = 0; i < temp_angle - 1; i++)
-        {
-            // 三角形ごとの頂点インデックスを指定.
-            if (i % 2 == 0)
-            {
-                subTriangles[3 * i] = i / 2;
-                subTriangles[3 * i + 1] = i / 2 + 1;
-                subTriangles[3 * i + 2] = i / 2 + div_num;
-            }
-            else
-            {
-                subTriangles[3 * i] = i / 2 + div_num + 1;
-                subTriangles[3 * i + 1] = i / 2 + div_num;
-                subTriangles[3 * i + 2] = i / 2 + 1;
-
-            }
-        }
-        
-        subTriangles[3 * i] = 0;
-        subTriangles[3 * i + 1] = div_num;
-        subTriangles[3 * i + 2] = 2 * div_num - 1;
-
-        i++;
-        
-        subTriangles[3 * i] = 0;
-        subTriangles[3 * i + 1] = div_num * 2 - 1;
-        subTriangles[3 * i + 2] = div_num - 1;
-
-        for (i = 0; i < div_num * 2 - 2; i++)
         {
             // 三角形ごとの頂点インデックスを指定.
             if (i % 2 == 0)
@@ -144,27 +115,9 @@ public class Mesh_Fan : MonoBehaviour
                 newTriangles[3 * i + 2] = i / 2 + 1;
 
             }
-
-            //newTriangles[i] = i;
-            /*
-            if (i % 3 == 0)
-            {
-                newTriangles[i] =  2 * i;
-            }
-            else if (i % 3 == 1)
-            {
-                newTriangles[i] = 2 * i + 1;
-            }
-            else if (i % 3 == 2)
-            {
-                newTriangles[i] = 2 *( i + 1);
-            }
-            */
         }
 
-        //Debug.Log("i=" + i + ": max=" + newTriangles.GetLength(0));
-
-        //最後2つの三角形の頂点インデックスを指定.
+        //端の部分を補う
         newTriangles[3 * i] = 0;
         newTriangles[3 * i + 1] = div_num;
         newTriangles[3 * i + 2] = 2 * div_num - 1;
@@ -175,10 +128,10 @@ public class Mesh_Fan : MonoBehaviour
         newTriangles[3 * i + 1] = div_num * 2 - 1;
         newTriangles[3 * i + 2] = div_num - 1;
 
+        //Mesh生成開始
         mesh.vertices = newVertices;
         mesh.uv = newUV;
-        //mesh.triangles = newTriangles;
-        mesh.triangles = subTriangles;
+        mesh.triangles = newTriangles;
 
         mesh.RecalculateNormals();
         mesh.RecalculateBounds();
@@ -193,7 +146,7 @@ public class Mesh_Fan : MonoBehaviour
         if (!meshCollider) meshCollider = gameObject.AddComponent<MeshCollider>();
 
         meshCollider.sharedMesh = mesh;
-        meshCollider.sharedMaterial = physicMaterial;
+        meshCollider.sharedMaterial = physicMaterial; //衝突判定付与
     }
 
 }
