@@ -15,10 +15,25 @@ public class Mesh_Fan : MonoBehaviour
     public float r_out = 5.0f;
     public int div_num = 30; //3の倍数にする
 
-    public int Central_angle = 360;
+    public int central_angle = 360;
 
     // Use this for initialization
     void Start()
+    {
+       
+    }
+
+    // Update is called once per frame
+    void Update()
+    {
+        float R_in = r_in;
+        float R_out = r_out;
+        int Div_num = div_num;
+        int Central_angle = central_angle;
+        CreateMesh(R_in,R_out,Div_num,Central_angle);
+    }
+
+    void CreateMesh(float r_in, float r_out, int div_num, int central_angle)
     {
         int i = 0;
         mesh = new Mesh();
@@ -28,10 +43,12 @@ public class Mesh_Fan : MonoBehaviour
         Vector2[] newUV = new Vector2[div_num * 2];
         int[] newTriangles = new int[div_num * 3 * 2];
 
-        for (i = 0; i < 2*div_num; i++)
+        int temp_angle = 0;
+
+        for (i = 0; i < 2 * div_num; i++)
         {
             // 頂点座標の指定.
-            if(i < div_num)
+            if (i < div_num)
             {
                 newVertices[i].x = r_out * Mathf.Cos(2.0f * Mathf.PI * (float)i / (float)div_num);
                 newVertices[i].y = r_out * Mathf.Sin(2.0f * Mathf.PI * (float)i / (float)div_num);
@@ -43,7 +60,12 @@ public class Mesh_Fan : MonoBehaviour
                 newVertices[i].y = r_in * Mathf.Sin(2.0f * Mathf.PI * ((float)i + 0.5f) / (float)div_num);
                 newVertices[i].z = 0.0f;
             }
-            
+
+            if(central_angle > (180.0f * (float)i / (float)div_num))
+            {
+                temp_angle = i;
+            }
+
 
             // UVの指定 (頂点数と同じ数を指定すること).
             if (i % 3 == 2)
@@ -76,20 +98,50 @@ public class Mesh_Fan : MonoBehaviour
         //newTriangles[4] = 1;
         //newTriangles[5] = 2;
 
-        for (i = 0; i < div_num*2- 2; i++)
+        int[] subTriangles = new int[temp_angle*3+3];
+
+        for(i = 0; i < temp_angle - 1; i++)
         {
             // 三角形ごとの頂点インデックスを指定.
             if (i % 2 == 0)
             {
-                newTriangles[3 * i] = i/2;
-                newTriangles[3 * i + 1] = i/2 + 1;
-                newTriangles[3 * i + 2] = i/2 + div_num;
+                subTriangles[3 * i] = i / 2;
+                subTriangles[3 * i + 1] = i / 2 + 1;
+                subTriangles[3 * i + 2] = i / 2 + div_num;
             }
             else
             {
-                newTriangles[3 * i] = i/2 + div_num + 1;
-                newTriangles[3 * i + 1] = i/2 + div_num;
-                newTriangles[3 * i + 2] = i/2 + 1;
+                subTriangles[3 * i] = i / 2 + div_num + 1;
+                subTriangles[3 * i + 1] = i / 2 + div_num;
+                subTriangles[3 * i + 2] = i / 2 + 1;
+
+            }
+        }
+        
+        subTriangles[3 * i] = 0;
+        subTriangles[3 * i + 1] = div_num;
+        subTriangles[3 * i + 2] = 2 * div_num - 1;
+
+        i++;
+        
+        subTriangles[3 * i] = 0;
+        subTriangles[3 * i + 1] = div_num * 2 - 1;
+        subTriangles[3 * i + 2] = div_num - 1;
+
+        for (i = 0; i < div_num * 2 - 2; i++)
+        {
+            // 三角形ごとの頂点インデックスを指定.
+            if (i % 2 == 0)
+            {
+                newTriangles[3 * i] = i / 2;
+                newTriangles[3 * i + 1] = i / 2 + 1;
+                newTriangles[3 * i + 2] = i / 2 + div_num;
+            }
+            else
+            {
+                newTriangles[3 * i] = i / 2 + div_num + 1;
+                newTriangles[3 * i + 1] = i / 2 + div_num;
+                newTriangles[3 * i + 2] = i / 2 + 1;
 
             }
 
@@ -120,12 +172,13 @@ public class Mesh_Fan : MonoBehaviour
         i++;
 
         newTriangles[3 * i] = 0;
-        newTriangles[3 * i + 1] = div_num*2-1;
+        newTriangles[3 * i + 1] = div_num * 2 - 1;
         newTriangles[3 * i + 2] = div_num - 1;
-        
+
         mesh.vertices = newVertices;
         mesh.uv = newUV;
-        mesh.triangles = newTriangles;
+        //mesh.triangles = newTriangles;
+        mesh.triangles = subTriangles;
 
         mesh.RecalculateNormals();
         mesh.RecalculateBounds();
@@ -143,9 +196,4 @@ public class Mesh_Fan : MonoBehaviour
         meshCollider.sharedMaterial = physicMaterial;
     }
 
-    // Update is called once per frame
-    void Update()
-    {
-
-    }
 }
