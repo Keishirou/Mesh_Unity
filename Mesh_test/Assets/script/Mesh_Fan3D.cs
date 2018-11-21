@@ -5,7 +5,7 @@ using UnityEngine;
 //[RequireComponent(typeof(MeshRenderer))]
 //[RequireComponent(typeof(MeshFilter))]
 
-public class Mesh_Fan : MonoBehaviour
+public class Mesh_Fan3D : MonoBehaviour
 {
     private Mesh mesh;
     [SerializeField]
@@ -19,6 +19,11 @@ public class Mesh_Fan : MonoBehaviour
 
     public int central_angle = 360; //中心角
 
+    float R_in = 0.0f; //内側の円の半径
+    float R_out = 0.0f; //外側の円の半径
+    int Div_num = 0; //3の倍数にする
+    int Central_angle = 0; //中心角
+
     // Use this for initialization
     void Start()
     {
@@ -29,13 +34,9 @@ public class Mesh_Fan : MonoBehaviour
     // Update is called once per frame
     void Update()
     {
-        float R_in = 0.0f; //内側の円の半径
-        float R_out = 0.0f; //外側の円の半径
-        int Div_num = 0; //3の倍数にする
-        int Central_angle = 0; //中心角
 
         //前のフレームで描画した値と異なる場合再描画
-        if ((R_in != r_in)||(R_out != r_out)||(Div_num != div_num)||(Central_angle != central_angle))
+        if ((R_in != r_in) || (R_out != r_out) || (Div_num != div_num) || (Central_angle != central_angle))
         {
             R_in = r_in; //内側の円の半径
             R_out = r_out; //外側の円の半径
@@ -49,8 +50,10 @@ public class Mesh_Fan : MonoBehaviour
     void CreateMesh(float r_in, float r_out, int div_num, int central_angle)
     {
         mesh = new Mesh();
-        Vector3[] newVertices = new Vector3[div_num * 2];
-        Vector2[] newUV = new Vector2[div_num * 2];
+        //Vector3[] newVertices = new Vector3[div_num * 2];
+        Vector3[] frontVertices = new Vector3[div_num * 2];
+        Vector3[] backVertices = new Vector3[div_num * 2];
+        Vector2[] newUV = new Vector2[div_num * 2 * 2];
 
         int i = 0;
         int temp_angle = 0;
@@ -60,17 +63,33 @@ public class Mesh_Fan : MonoBehaviour
             // 頂点座標の指定.
             if (i < div_num)
             {
-                newVertices[i].x = r_out * Mathf.Cos(2.0f * Mathf.PI * (float)i / (float)div_num);
-                newVertices[i].y = r_out * Mathf.Sin(2.0f * Mathf.PI * (float)i / (float)div_num);
-                newVertices[i].z = 0.0f;
-                newVertices[i] = newVertices[i] + this.transform.localPosition;
+                //newVertices[i].x = r_out * Mathf.Cos(2.0f * Mathf.PI * (float)i / (float)div_num);
+                //newVertices[i].y = r_out * Mathf.Sin(2.0f * Mathf.PI * (float)i / (float)div_num);
+                //newVertices[i].z = 0.0f;
+                //newVertices[i] = newVertices[i] + this.transform.localPosition;
+                frontVertices[i].x = r_out * Mathf.Cos(2.0f * Mathf.PI * (float)i / (float)div_num);
+                frontVertices[i].y = r_out * Mathf.Sin(2.0f * Mathf.PI * (float)i / (float)div_num);
+                frontVertices[i].z = 1.0f;
+                frontVertices[i] = frontVertices[i] + this.transform.localPosition;
+                backVertices[i].x = r_out * Mathf.Cos(2.0f * Mathf.PI * (float)i / (float)div_num);
+                backVertices[i].y = r_out * Mathf.Sin(2.0f * Mathf.PI * (float)i / (float)div_num);
+                backVertices[i].z = -1.0f;
+                backVertices[i] = backVertices[i] + this.transform.localPosition;
             }
             else
             {
-                newVertices[i].x = r_in * Mathf.Cos(2.0f * Mathf.PI * ((float)i + 0.5f) / (float)div_num);
-                newVertices[i].y = r_in * Mathf.Sin(2.0f * Mathf.PI * ((float)i + 0.5f) / (float)div_num);
-                newVertices[i].z = 0.0f;
-                newVertices[i] = newVertices[i] + this.transform.localPosition;
+                //newVertices[i].x = r_in * Mathf.Cos(2.0f * Mathf.PI * ((float)i + 0.5f) / (float)div_num);
+                //newVertices[i].y = r_in * Mathf.Sin(2.0f * Mathf.PI * ((float)i + 0.5f) / (float)div_num);
+                //newVertices[i].z = 0.0f;
+                //newVertices[i] = newVertices[i] + this.transform.localPosition;
+                frontVertices[i].x = r_in * Mathf.Cos(2.0f * Mathf.PI * ((float)i + 0.5f) / (float)div_num);
+                frontVertices[i].y = r_in * Mathf.Sin(2.0f * Mathf.PI * ((float)i + 0.5f) / (float)div_num);
+                frontVertices[i].z = 1.0f;
+                frontVertices[i] = frontVertices[i] + this.transform.localPosition;
+                backVertices[i].x = r_in * Mathf.Cos(2.0f * Mathf.PI * ((float)i + 0.5f) / (float)div_num);
+                backVertices[i].y = r_in * Mathf.Sin(2.0f * Mathf.PI * ((float)i + 0.5f) / (float)div_num);
+                backVertices[i].z = -1.0f;
+                backVertices[i] = backVertices[i] + this.transform.localPosition;
             }
 
             //円をどこで切るのかを決定
@@ -80,6 +99,28 @@ public class Mesh_Fan : MonoBehaviour
             }
 
 
+            //// UVの指定 (頂点数と同じ数を指定すること).
+            //if (i % 3 == 2)
+            //{
+            //    newUV[i] = new Vector2(0.0f, 0.0f);
+            //}
+            //else if (i % 3 == 1)
+            //{
+            //    newUV[i] = new Vector2(0.0f, 1.0f);
+            //}
+            //else if (i % 3 == 0)
+            //{
+            //    newUV[i] = new Vector2(1.0f, 1.0f);
+            //}
+
+        }
+
+        Vector3[] newVertices = new Vector3[div_num * 2 * 2];
+        frontVertices.CopyTo(newVertices, 0);
+        backVertices.CopyTo(newVertices, frontVertices.Length);
+
+        for (i = 0; i < 4 * div_num; i++)
+        {
             // UVの指定 (頂点数と同じ数を指定すること).
             if (i % 3 == 2)
             {
@@ -93,10 +134,9 @@ public class Mesh_Fan : MonoBehaviour
             {
                 newUV[i] = new Vector2(1.0f, 1.0f);
             }
-
         }
-
         //　決めた範囲のみ描画する
+
         //int[] newTriangles = new int[temp_angle*3+3];
         int[] frontTriangles = new int[temp_angle * 3 + 3];
         int[] backTriangles = new int[temp_angle * 3 + 3];
@@ -113,9 +153,9 @@ public class Mesh_Fan : MonoBehaviour
                 frontTriangles[3 * i + 2] = i / 2 + div_num;
 
                 /*裏*/
-                backTriangles[3 * i] = i / 2 + div_num;
-                backTriangles[3 * i + 1] = i / 2 + 1;
-                backTriangles[3 * i + 2] = i / 2;
+                backTriangles[3 * i] = i / 2 + 3 * div_num;
+                backTriangles[3 * i + 1] = i / 2 + 1 + 2 * div_num;
+                backTriangles[3 * i + 2] = i / 2 + 2 * div_num;
             }
             else
             {
@@ -125,9 +165,9 @@ public class Mesh_Fan : MonoBehaviour
                 frontTriangles[3 * i + 2] = i / 2 + 1;
 
                 /*裏*/
-                backTriangles[3 * i] = i / 2 + 1;
-                backTriangles[3 * i + 1] = i / 2 + div_num;
-                backTriangles[3 * i + 2] = i / 2 + div_num + 1;
+                backTriangles[3 * i] = i / 2 + 1 + 2 * div_num;
+                backTriangles[3 * i + 1] = i / 2 + 3 * div_num;
+                backTriangles[3 * i + 2] = i / 2 + 3 * div_num + 1;
             }
         }
 
@@ -138,9 +178,9 @@ public class Mesh_Fan : MonoBehaviour
         frontTriangles[3 * i + 2] = 2 * div_num - 1;
 
         /*裏*/
-        backTriangles[3 * i] = 2 * div_num - 1;
-        backTriangles[3 * i + 1] = div_num;
-        backTriangles[3 * i + 2] = 0;
+        backTriangles[3 * i] = 4 * div_num - 1;
+        backTriangles[3 * i + 1] = 3 * div_num;
+        backTriangles[3 * i + 2] = 2 * div_num;
 
         i++;
 
@@ -150,9 +190,9 @@ public class Mesh_Fan : MonoBehaviour
         frontTriangles[3 * i + 2] = div_num - 1;
 
         /*裏*/
-        backTriangles[3 * i] = div_num - 1;
-        backTriangles[3 * i + 1] = div_num * 2 - 1;
-        backTriangles[3 * i + 2] = 0;
+        backTriangles[3 * i] = 3 * div_num - 1;
+        backTriangles[3 * i + 1] = 4 * div_num - 1;
+        backTriangles[3 * i + 2] = 2 * div_num;
 
 
         int[] newTriangles = new int[frontTriangles.Length + backTriangles.Length];

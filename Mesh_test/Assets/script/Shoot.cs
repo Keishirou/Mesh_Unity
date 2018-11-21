@@ -37,4 +37,5 @@ public class Shoot : MonoBehaviour {
             bullets.transform.position = muzzle.position;
         }
     }
+    
 }
